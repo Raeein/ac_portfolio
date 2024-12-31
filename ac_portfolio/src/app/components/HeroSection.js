@@ -43,84 +43,41 @@ const HeroSection = () => {
     }
   };
 
-  const generateReply = (userMessage) => {
-    let reply = "";
+  const generateReply = async (userMessage) => {
+    try {
+      // Send the user message to the Flask backend
+      const response = await fetch("http://localhost:4000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: userMessage }),
+      });
 
-    if (userMessage.toLowerCase().includes("experience")) {
-      reply =
-        "I have experience in developing scalable applications and working with multiple languages and frameworks, ranging from Elixir to React! In addition, I'm a teaching assistant for various computer science courses, including UI Design, Intro/Intermediate Programming and Web Development";
-    } else if (userMessage.toLowerCase().includes("about")) {
-      reply =
-        "I'm a Software Engineering student at the University of Guelph, and I enjoy working on challenging technical problems.";
-    } else if (userMessage.toLowerCase().includes("github")) {
-      reply = (
-        <span>
-          You can find my GitHub profile{" "}
-          <a href="https://github.com/acandrewchow" className="text-blue-400">
-            here
-          </a>{" "}
-        </span>
-      );
-    } else if (userMessage.toLowerCase().includes("contact")) {
-      reply = (
-        <span>
-          You can reach me via email at{" "}
-          <a href="mailto:ac.andrewchow@gmail.com" className="text-blue-500">
-            ac.andrewchow@gmail.com
-          </a>{" "}
-          or connect with me on LinkedIn at{" "}
-          <a
-            href="https://www.linkedin.com/in/acandrewchow"
-            target="_blank"
-            className="text-blue-400"
-            rel="noopener noreferrer"
-          >
-            linkedin.com/in/acandrewchow
-          </a>
-        </span>
-      );
-    } else if (userMessage.toLowerCase().includes("resume")) {
-      reply = (
-        <span>
-          You can view my resume below:
-          <div className="mt-4">
-            <iframe
-              src="https://www.andrewchow.ca/resume.pdf"
-              width="100%"
-              height="425"
-              className="rounded-lg border border-gray-300"
-              title="Andrew's Resume"
-            ></iframe>
-          </div>
-          <div className="mt-2">
-            <a
-              href="https://www.andrewchow.ca/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400"
-            >
-              open resume
-            </a>
-          </div>
-        </span>
-      );
-    } else if (
-      userMessage.toLowerCase().includes("hello") ||
-      userMessage.toLowerCase().includes("hi")
-    ) {
-      reply = "Hi there! How can I help you today?";
-    } else {
-      reply =
-        "I'm sorry, I don't understand that question. Please ask me something else!";
-    }
+      if (!response.ok) {
+        throw new Error("Failed to fetch response from the server.");
+      }
 
-    // Delay the reply
-    setTimeout(() => {
+      const data = await response.json();
+
+      // Display the reply from Flask
+      const reply = data.botMessage || "Sorry, no response from the bot.";
       setMessages((prevMessages) => [
         ...prevMessages,
         { text: reply, isSender: false },
       ]);
-    }, 1000);
+    } catch (error) {
+      console.error("Error communicating with backend:", error);
+
+      // Fallback reply in case of an error
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          text: "Oops! Something went wrong while contacting the server.",
+          isSender: false,
+        },
+      ]);
+    }
   };
 
   // Scroll to the bottom of the chat container when new messages are added

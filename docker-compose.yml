@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  ac_portfolio:
+    build:
+      context: ./ac_portfolio
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ac_portfolio:/app
+    depends_on:
+      - chat_backend
+
+  chat_backend:
+    build:
+      context: ./chat_backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./chat_backend:/app
